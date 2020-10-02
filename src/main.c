@@ -11,6 +11,8 @@
 
 #include "integration_lib.h"
 
+#define errprintf(...) fprintf(stderr, __VA_ARGS__)
+
 int read_interval(struct interval_t *interval);
 
 char **run_experiments(struct interval_t interval, const int *steps_numbers, size_t experiments_number);
@@ -21,28 +23,28 @@ void free_string_array(char **array, size_t array_length);
 int read_interval(struct interval_t *interval) {
     do {
         if (printf("Enter an interval \"a b\", where a >= 0 and b <= Pi, e.g. \"1 3\": ") < 0) {
-            fprintf(stderr, "Cannot write to stdout\n");
+            errprintf("Cannot write to stdout\n");
             return -1;
         }
 
         if (scanf("%lf %lf", &interval->left_border, &interval->right_border) != 2) {
-            fprintf(stderr, "Cannot read the interval\n");
+            errprintf("Cannot read the interval\n");
             return -1;
         }
 
 
         if (interval->left_border < 0) {
-            fprintf(stderr, "The left border of the interval must be greater than or equal to 0\n");
+            errprintf("The left border of the interval must be greater than or equal to 0\n");
             continue;
         }
 
         if (interval->right_border > M_PI) {
-            fprintf(stderr, "The right border of the interval must be less than or equal to Pi\n");
+            errprintf("The right border of the interval must be less than or equal to Pi\n");
             continue;
         }
 
         if (interval->left_border >= interval->right_border) {
-            fprintf(stderr, "The right border of the interval must be greater than the left\n");
+            errprintf("The right border of the interval must be greater than the left\n");
             continue;
         }
 
@@ -69,13 +71,13 @@ char **run_experiments(struct interval_t interval, const int *steps_numbers, siz
 
         if (results[i] == NULL) {
             free_string_array(results, i);
-            fprintf(stderr, "Cannot allocate memory for result string in %ld experiment\n", i);
+            errprintf("Cannot allocate memory for result string in %ld experiment\n", i);
             return NULL;
         }
 
         if (sprintf(results[i], "%d %.5f %.5f", steps_number, r_integral, s_integral) < 0) {
             free_string_array(results, i + 1);
-            fprintf(stderr, "Cannot write result to string in %ld experiment\n", i);
+            errprintf("Cannot write result to string in %ld experiment\n", i);
             return NULL;
         }
     }
@@ -108,7 +110,7 @@ int main() {
     printf("Experiments' result:\n");
     for (size_t i = 0; i < experiments_number; ++i) {
         if (printf("%s\n", experiments_result[i]) < 0) {
-            fprintf(stderr, "Cannot write %lu result to stdout\n", i + 1);
+            errprintf("Cannot write %lu result to stdout\n", i + 1);
             exit(EXIT_FAILURE);
         }
     }
@@ -119,3 +121,4 @@ int main() {
 
     exit(EXIT_SUCCESS);
 }
+
